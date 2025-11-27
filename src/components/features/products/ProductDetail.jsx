@@ -15,7 +15,7 @@ export default function ProductDetail() {
       <div>
         <img src={`${base}/${data.product.image}`} alt="" />
       </div>
-      <div ClassName="space-y-5">
+      <div className="space-y-5">
         <h1>{data.product.title}</h1>
         <p className="text-zinc-500">Price:-{data.product.price}</p>
         <p className="text-zinc-500">Stock:-{data.product.stock}</p>
