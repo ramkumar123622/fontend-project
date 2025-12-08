@@ -4,10 +4,12 @@ import jwt from 'jsonwebtoken';
 
 export const checkUser = (req, res, next) =>{
     const token = req.headers.authorization;
+    
 if(!token) return res.status(401).json({
     status: 'error',
     message: 'authorization token missing'
 });
+
 try {
     const decode = jwt.verify(token, 'secret');
        req.userId = decode.id;

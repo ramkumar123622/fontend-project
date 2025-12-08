@@ -8,15 +8,14 @@ import mongoose from 'mongoose';
 import fileUpload from 'express-fileupload';
 import nodemailer from 'nodemailer';
 import cors from 'cors';
+import dotenv from "dotenv"
 
 const app = express();
 const port = 5000;
-
+dotenv.config();
 
 // MONGODB CONNECTION
-mongoose.connect(
-  'mongodb+srv://mahararamkumar35_db_user:mongo1000@cluster0.m3ggwt3.mongodb.net/NewShop?retryWrites=true&w=majority&appName=Cluster0'
-)
+mongoose.connect( process.env.DB_URL)
   .then(() => {
     console.log('MongoDB Connected');
 

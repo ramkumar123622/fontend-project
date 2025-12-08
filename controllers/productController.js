@@ -1,5 +1,5 @@
-//users get, post, delete, idfetch, update
- import product from "../model/product.js";
+ //users get, post, delete, idfetch, update
+ import product, { brands, categories } from "../model/product.js";
 import fs from 'fs';
 
 
@@ -8,20 +8,73 @@ import fs from 'fs';
  export const getProducts = async (req,res)=>{
  try {
 
+const excludedFields = ['page', 'limit', 'sort', 'fields', 'skip', 'search'];
+let queryObj = {...req.query};
+
+excludedFields.forEach((val) => {
+  delete queryObj[val];
+}); 
+
+if(req.query.search){
+  const searchText = req.query.search;
+
+  if(categories.some((name) => name.toLowerCase() === searchText.toLowerCase())) {
+    queryObj.category = {$regex: searchText, $options:'i' }
+  }else if (brands.some((name) => name.toLowerCase() === searchText.toLowerCase())) {
+queryObj.brand = {$regex: searchText, $options:'i'}
+  }else{
+    queryObj.title = {$regex: searchText, $options:'i'}
+  }
+}
 
 
 
-  const products = await product.find({});
-  return res.status(200).json({
+
+
+const output = Object.entries(queryObj).reduce((acc, [key, value]) => {
+  const match = key.match(/(.+)\[(.+)\]/); // capture full field + operator
+
+  if (match) {
+    const field = match[1];
+    const operator = `$${match[2]}`;
+
+    // convert numeric strings to numbers
+    const parsedValue = isNaN(value) ? value : Number(value);
+
+   acc[field]= {[operator]: parsedValue};
+  } else {
+    acc[key] = value
+  }
+
+  return acc;
+}, {});
+console.log(output);
+    let query = product.find(output);
+
+  if(req.query.sort){
+    const sortBy = req.query.sort.split(',').join(' ');
+    query = query.sort(sortBy); 
+  }
+
+   if(req.query.fields){
+   const fields = req.query.fields.split(',').join(' ');
+   query = query.select(fields);
+   }
+
+   const page = req.query.page || 1;
+   const limit = req.query.limit || 10;
+   const skip = (page - 1) *10;
+
+
+   const total = await product.countDocuments();
+
+   const products = await query.skip(skip).limit(limit);
+    return res.status(200).json({
     status:'success',
-    products
-
+    total,
+    products,
+    totalPages: Math.ceil(total / limit)
   })
-
-
-
-
-  
  } catch (err) {
      return res.status(400).json({ 
       status: 'Error',
@@ -76,7 +129,7 @@ export const createProducts = async (req,res) => {
     })
   } catch (err) {
 
-    fs.unlink(`./uploads/${req.imagePath}`, (error) => {
+    fs.unlink(`./uploads/${req.imagePath}`, (err) => {
       return res.status(400).json({ 
       status: 'Error',
       message: err.message
