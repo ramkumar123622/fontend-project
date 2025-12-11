@@ -7,6 +7,9 @@ import AdminPanel from "./components/features/admin/AdminPanel";
 import ProductAddForm from "./components/features/admin/ProductAddForm";
 import ProductEdit from "./components/features/admin/ProductEdit";
 import ProductDetail from "./components/features/products/productDetail";
+import CheckOut from "./components/features/carts/CheckOut";
+import UserProfile from "./components/features/profile/UserProfile";
+import Order from "./components/features/orders/Order";
 
 export default function App() {
   const router = createBrowserRouter([
@@ -27,6 +30,10 @@ export default function App() {
           element: <Register />,
         },
         {
+          path: "profile",
+          element: <UserProfile />,
+        },
+        {
           path: "admin-panel",
           element: <AdminPanel />,
         },
@@ -41,6 +48,15 @@ export default function App() {
         {
           path: "product-add",
           element: <ProductAddForm />,
+        },
+        {
+          path: "order/:id",
+          element: <Order />,
+        },
+
+        {
+          path: "checkout",
+          element: <CheckOut />,
         },
       ],
     },

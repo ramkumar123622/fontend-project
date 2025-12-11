@@ -51,12 +51,12 @@ export default function Login() {
             }}
             onSubmit={async (val) => {
               try {
-                const response = await loginUser(val).unwrap();
+                const res = await loginUser(val).unwrap();
                 toast.success("Login Successfully");
-                dispatch(setUser(response.data));
+                dispatch(setUser(res.data));
                 nav("/");
               } catch (err) {
-                toast.error(err.data.data);
+                toast.error(err.data?.data);
               }
             }}
             validationSchema={loginSchema}

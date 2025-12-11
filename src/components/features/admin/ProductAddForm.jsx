@@ -10,39 +10,41 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import { FileType } from "lucide-react";
-import { useCreateProductMutation } from "../products/productApi";
-import { Spinner } from "@/components/ui/spinner";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
+import { useCreateProductMutation } from "../products/productApi";
+import { Textarea } from "@/components/ui/textarea";
+import { Spinner } from "@/components/ui/spinner";
 
 const valSchema = Yup.object({
   title: Yup.string().min(4).required(),
   detail: Yup.string().min(10).required(),
   price: Yup.string().required(),
+  stock: Yup.string().required(),
   category: Yup.string().required(),
   brand: Yup.string().required(),
   image: Yup.mixed()
-    .test("fileType", "Unsupported file format", (val) => {
-      return (
-        val &&
-        ["image/jpg", "image/jpeg", "image/png", "image/gif"].includes(val.type)
+    .required("Image is required")
+    .test("fileType", "Unsupported File Format", (val) => {
+      if (!val) return false;
+      return ["image/jpeg", "image/png", "image/jpg", "image/gif"].includes(
+        val.type
       );
     })
-    .test("filesize", "file too large", (val) => {
-      return val && val.size <= 5 * 1024 * 1024;
-    })
-    .required(),
+    .test("fileSize", "File is too large", (val) => {
+      if (!val) return false;
+      return val.size <= 5 * 1024 * 1024;
+    }),
 });
 
 export default function ProductAddForm() {
   const nav = useNavigate();
   const { user } = useSelector((state) => state.userSlice);
   const [addProduct, { isLoading }] = useCreateProductMutation();
+
   return (
     <div>
       <Card className="w-full max-w-sm">
@@ -55,8 +57,8 @@ export default function ProductAddForm() {
               title: "",
               detail: "",
               price: "",
-              category: "",
               stock: "",
+              category: "",
               brand: "",
               image: "",
               imageReview: "",
@@ -71,14 +73,16 @@ export default function ProductAddForm() {
                 formData.append("category", val.category);
                 formData.append("brand", val.brand);
                 formData.append("image", val.image);
+
                 await addProduct({
                   token: user.token,
                   body: formData,
                 }).unwrap();
-                toast.success("Product Added Successfully");
+
+                toast.success("Product added successfully");
                 nav(-1);
-              } catch (error) {
-                toast.error(error.data.message);
+              } catch (err) {
+                toast.error(err.data?.message || "Error occurred");
               }
             }}
             validationSchema={valSchema}
@@ -92,7 +96,7 @@ export default function ProductAddForm() {
               values,
             }) => (
               <form onSubmit={handleSubmit}>
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-6">
                   <div className="grid gap-2">
                     <Label htmlFor="title">Title</Label>
                     <Input
@@ -101,26 +105,27 @@ export default function ProductAddForm() {
                       value={values.title}
                       id="title"
                       type="text"
-                      placeholder="product-title"
+                      placeholder="product title"
                     />
                     {touched.title && errors.title && (
                       <p className="text-red-500">{errors.title}</p>
                     )}
                   </div>
+
                   <div className="grid gap-2">
                     <Label htmlFor="detail">Detail</Label>
                     <Textarea
                       name="detail"
                       onChange={handleChange}
                       value={values.detail}
-                      id="deatil"
-                      type="text"
-                      placeholder="product-detail"
+                      id="detail"
+                      placeholder="product detail"
                     />
                     {touched.detail && errors.detail && (
                       <p className="text-red-500">{errors.detail}</p>
                     )}
                   </div>
+
                   <div className="grid gap-2">
                     <Label htmlFor="price">Price</Label>
                     <Input
@@ -129,7 +134,7 @@ export default function ProductAddForm() {
                       value={values.price}
                       id="price"
                       type="number"
-                      placeholder="product-price"
+                      placeholder="product price"
                     />
                     {touched.price && errors.price && (
                       <p className="text-red-500">{errors.price}</p>
@@ -144,57 +149,54 @@ export default function ProductAddForm() {
                       value={values.stock}
                       id="stock"
                       type="number"
-                      placeholder="product-stock"
+                      placeholder="product stock"
                     />
                     {touched.stock && errors.stock && (
                       <p className="text-red-500">{errors.stock}</p>
                     )}
                   </div>
 
-                  <div>
-                    <Select
-                      name="category"
-                      onValueChange={(value) =>
-                        setFieldValue("category", value)
-                      }
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select a Category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectItem value="food">food</SelectItem>
-                          <SelectItem value="clothes">clothes</SelectItem>
-                          <SelectItem value="tech">Tech</SelectItem>
-                          <SelectItem value="jewellery">jewellery</SelectItem>
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
+                  <Select
+                    name="category"
+                    onValueChange={(value) => setFieldValue("category", value)}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select a Category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem value="food">Food</SelectItem>
+                        <SelectItem value="clothes">Clothes</SelectItem>
+                        <SelectItem value="tech">Tech</SelectItem>
+                        <SelectItem value="jewellery">Jewellery</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
                     {touched.category && errors.category && (
                       <p className="text-red-500">{errors.category}</p>
                     )}
-                  </div>
-                  <div>
-                    <Select
-                      name="brand"
-                      onValueChange={(value) => setFieldValue("brand", value)}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select a brand" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectItem value="addidas">addidas</SelectItem>
-                          <SelectItem value="samsung">samsung</SelectItem>
-                          <SelectItem value="tanishq">tanishq</SelectItem>
-                          <SelectItem value="iphone">iphone</SelectItem>
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
+                  </Select>
+
+                  <Select
+                    name="brand"
+                    onValueChange={(value) => setFieldValue("brand", value)}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select a brand" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem value="addidas">Addidas</SelectItem>
+                        <SelectItem value="samsung">Samsung</SelectItem>
+                        <SelectItem value="tanishq">Tanishq</SelectItem>
+                        <SelectItem value="kfc">Kfc</SelectItem>
+                        <SelectItem value="iphone">Iphone</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
                     {touched.brand && errors.brand && (
                       <p className="text-red-500">{errors.brand}</p>
                     )}
-                  </div>
+                  </Select>
+
                   <div className="grid gap-2">
                     <Label htmlFor="image">Select an image</Label>
                     <Input
@@ -206,32 +208,31 @@ export default function ProductAddForm() {
                       }}
                       id="image"
                       type="file"
-                      placeholder="product-image"
                     />
-                    {values.imageReview && !errors.image && (
-                      <img src={values.imageReview} alt="" />
-                    )}
-
                     {touched.image && errors.image && (
                       <p className="text-red-500">{errors.image}</p>
                     )}
+                    {values.imageReview && !errors.image && (
+                      <img src={values.imageReview} alt="" />
+                    )}
                   </div>
+
+                  {isLoading ? (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled
+                      className="w-full mt-5"
+                    >
+                      <Spinner />
+                      Submit
+                    </Button>
+                  ) : (
+                    <Button type="submit" className="w-full mt-5">
+                      Submit
+                    </Button>
+                  )}
                 </div>
-                {isLoading ? (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    disabled
-                    className="w-full mt-5"
-                  >
-                    <Spinner />
-                    Submit
-                  </Button>
-                ) : (
-                  <Button type="submit" className="w-full mt-5">
-                    Submit
-                  </Button>
-                )}
               </form>
             )}
           </Formik>

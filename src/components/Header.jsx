@@ -5,7 +5,7 @@ import DropDownProfile from "./DropDownProfile";
 
 export default function Header() {
   const { user } = useSelector((state) => state.userSlice);
-  console.log(user);
+
   return (
     <div className="bg-gray-200 px-5  flex items-end justify-between py-[7px]">
       <h1 className="text-[30px] font-bold ">Shopal</h1>

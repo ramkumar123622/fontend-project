@@ -15,7 +15,7 @@ export const userSlice = createSlice({
           state.user = action.payload;
           setUserToLocal(action.payload);
         },
-         removeUser: (state, action) => {
+         removeUser: (state) => {
             state.user = null;
             removeUserFromLocal();
          }

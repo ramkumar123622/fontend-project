@@ -16,8 +16,8 @@ export default function ProductEdit() {
 
   return (
     <>
-      <h1>Product Edit</h1>
-      <ProductEditForm product={data.data} />
+      <h1 className="text-2xl font-bold">Product Edit</h1>
+      <ProductEditForm product={data.product} />
     </>
   );
 }

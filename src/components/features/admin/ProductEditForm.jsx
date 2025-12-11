@@ -13,7 +13,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Formik } from "formik";
 import * as Yup from "yup";
-
 import { Spinner } from "@/components/ui/spinner";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
@@ -25,48 +24,50 @@ const valSchema = Yup.object({
   title: Yup.string().min(4).required(),
   detail: Yup.string().min(10).required(),
   price: Yup.string().required(),
+  stock: Yup.string().required(),
   category: Yup.string().required(),
   brand: Yup.string().required(),
   image: Yup.mixed()
     .test("fileType", "Unsupported file format", (val) => {
       if (!val) return true;
-      return (
-        val &&
-        ["image/jpg", "image/jpeg", "image/png", "image/gif"].includes(val.type)
+      return ["image/jpg", "image/jpeg", "image/png", "image/gif"].includes(
+        val.type
       );
     })
-    .test("filesize", "file too large", (val) => {
+    .test("fileSize", "File too large", (val) => {
       if (!val) return true;
-      return val && val.size <= 5 * 1024 * 1024;
+      return val.size <= 5 * 1024 * 1024;
     }),
 });
+
 export default function ProductEditForm({ product }) {
   const nav = useNavigate();
   const { user } = useSelector((state) => state.userSlice);
   const [updateProduct, { isLoading }] = useUpdateProductMutation();
 
-  // // FIX 1: Prevent crash before product loads
-  // if (product) return <p>Loading...</p>;
+  // Correct loading condition
+  if (!product) return <p>Loading...</p>;
 
   return (
     <div>
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle>Product Create</CardTitle>
+          <CardTitle>Product Update</CardTitle>
         </CardHeader>
         <CardContent>
           <Formik
+            enableReinitialize
             initialValues={{
-              // FIX 2: prevent undefined crash
-              title: product?.title || "",
-              detail: product?.detail || "",
-              price: product?.price || "",
-              stock: product?.stock || "",
-              category: product?.category || "",
-              brand: product?.brand || "",
+              title: product.title,
+              detail: product.detail,
+              price: product.price,
+              stock: product.stock,
+              category: product.category,
+              brand: product.brand,
               image: "",
-              imageReview: product?.image || "",
+              imageReview: product.image,
             }}
+            validationSchema={valSchema}
             onSubmit={async (val) => {
               try {
                 const formData = new FormData();
@@ -76,6 +77,7 @@ export default function ProductEditForm({ product }) {
                 formData.append("stock", val.stock);
                 formData.append("category", val.category);
                 formData.append("brand", val.brand);
+
                 if (val.image) {
                   formData.append("image", val.image);
                 }
@@ -89,99 +91,101 @@ export default function ProductEditForm({ product }) {
                 toast.success("Product Updated Successfully");
                 nav(-1);
               } catch (err) {
-                console.log(err);
-                toast.error(err.data.message);
+                toast.error(err.data?.message || "Error occurred");
               }
             }}
-            validationSchema={valSchema}
           >
             {({
               handleChange,
               handleSubmit,
-              errors,
-              touched,
               setFieldValue,
               values,
+              touched,
+              errors,
             }) => (
               <form onSubmit={handleSubmit}>
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-6">
+                  {/* Title */}
                   <div className="grid gap-2">
                     <Label htmlFor="title">Title</Label>
                     <Input
-                      name="title"
-                      onChange={handleChange}
-                      value={values.title}
                       id="title"
+                      name="title"
                       type="text"
-                      placeholder="product-title"
+                      placeholder="Product title"
+                      value={values.title}
+                      onChange={handleChange}
                     />
                     {touched.title && errors.title && (
                       <p className="text-red-500">{errors.title}</p>
                     )}
                   </div>
 
+                  {/* Detail */}
                   <div className="grid gap-2">
                     <Label htmlFor="detail">Detail</Label>
                     <Textarea
-                      name="detail"
-                      onChange={handleChange}
-                      value={values.detail}
                       id="detail"
-                      type="text"
-                      placeholder="product-detail"
+                      name="detail"
+                      placeholder="Product detail"
+                      value={values.detail}
+                      onChange={handleChange}
                     />
                     {touched.detail && errors.detail && (
                       <p className="text-red-500">{errors.detail}</p>
                     )}
                   </div>
 
+                  {/* Price */}
                   <div className="grid gap-2">
                     <Label htmlFor="price">Price</Label>
                     <Input
-                      name="price"
-                      onChange={handleChange}
-                      value={values.price}
                       id="price"
+                      name="price"
                       type="number"
-                      placeholder="product-price"
+                      placeholder="Product price"
+                      value={values.price}
+                      onChange={handleChange}
                     />
                     {touched.price && errors.price && (
                       <p className="text-red-500">{errors.price}</p>
                     )}
                   </div>
 
+                  {/* Stock */}
                   <div className="grid gap-2">
                     <Label htmlFor="stock">Stock</Label>
                     <Input
-                      name="stock"
-                      onChange={handleChange}
-                      value={values.stock}
                       id="stock"
+                      name="stock"
                       type="number"
-                      placeholder="product-stock"
+                      placeholder="Product stock"
+                      value={values.stock}
+                      onChange={handleChange}
                     />
                     {touched.stock && errors.stock && (
                       <p className="text-red-500">{errors.stock}</p>
                     )}
                   </div>
 
+                  {/* Category */}
                   <div>
                     <Select
-                      value={values.category}
                       name="category"
+                      value={values.category}
                       onValueChange={(value) =>
                         setFieldValue("category", value)
                       }
                     >
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select a Category" />
+                        <SelectValue placeholder="Select a category" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
-                          <SelectItem value="food">food</SelectItem>
-                          <SelectItem value="clothes">clothes</SelectItem>
+                          <SelectItem value="food">Food</SelectItem>
+                          <SelectItem value="clothes">Clothes</SelectItem>
                           <SelectItem value="tech">Tech</SelectItem>
-                          <SelectItem value="jewellery">jewellery</SelectItem>
+                          <SelectItem value="jewellery">Jewellery</SelectItem>
                         </SelectGroup>
                       </SelectContent>
                     </Select>
@@ -190,10 +194,11 @@ export default function ProductEditForm({ product }) {
                     )}
                   </div>
 
+                  {/* Brand */}
                   <div>
                     <Select
-                      value={values.brand}
                       name="brand"
+                      value={values.brand}
                       onValueChange={(value) => setFieldValue("brand", value)}
                     >
                       <SelectTrigger className="w-full">
@@ -201,10 +206,10 @@ export default function ProductEditForm({ product }) {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
-                          <SelectItem value="addidas">addidas</SelectItem>
-                          <SelectItem value="samsung">samsung</SelectItem>
-                          <SelectItem value="tanishq">tanishq</SelectItem>
-                          <SelectItem value="iphone">iphone</SelectItem>
+                          <SelectItem value="addidas">Addidas</SelectItem>
+                          <SelectItem value="samsung">Samsung</SelectItem>
+                          <SelectItem value="tanishq">Tanishq</SelectItem>
+                          <SelectItem value="iphone">iPhone</SelectItem>
                         </SelectGroup>
                       </SelectContent>
                     </Select>
@@ -213,47 +218,57 @@ export default function ProductEditForm({ product }) {
                     )}
                   </div>
 
+                  {/* Image */}
                   <div className="grid gap-2">
                     <Label htmlFor="image">Select an image</Label>
                     <Input
+                      id="image"
                       name="image"
+                      type="file"
                       onChange={(e) => {
                         const file = e.target.files[0];
-                        setFieldValue("imageReview", URL.createObjectURL(file));
-                        setFieldValue("image", file);
+                        if (file) {
+                          setFieldValue("image", file);
+                          setFieldValue(
+                            "imageReview",
+                            URL.createObjectURL(file)
+                          );
+                        }
                       }}
-                      id="image"
-                      type="file"
-                      placeholder="product-image"
                     />
-                    {values.imageReview && !errors.image && (
-                      <img src={values.imageReview} alt="" />
+                    {values.imageReview && (
+                      <img
+                        src={
+                          values.image?.name
+                            ? values.imageReview
+                            : `${base}/${values.imageReview}`
+                        }
+                        alt="preview"
+                        className="max-h-40 mt-2"
+                      />
                     )}
-
                     {touched.image && errors.image && (
                       <p className="text-red-500">{errors.image}</p>
                     )}
-                    {!values.imageReview
-                      ? `${base}/${values.imageReview}`
-                      : values.imageReview}
                   </div>
-                </div>
 
-                {isLoading ? (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    disabled
-                    className="w-full mt-5"
-                  >
-                    <Spinner />
-                    Submit
-                  </Button>
-                ) : (
-                  <Button type="submit" className="w-full mt-5">
-                    Submit
-                  </Button>
-                )}
+                  {/* Submit */}
+                  {isLoading ? (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled
+                      className="w-full mt-5"
+                    >
+                      <Spinner />
+                      Submit
+                    </Button>
+                  ) : (
+                    <Button type="submit" className="w-full mt-5">
+                      Submit
+                    </Button>
+                  )}
+                </div>
               </form>
             )}
           </Formik>

@@ -1,39 +1,69 @@
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { setCart } from "./cartSlice";
 import { Button } from "@/components/ui/button";
 import { MinusIcon, PlusIcon } from "lucide-react";
-import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { setCart } from "./cartSlice";
 
 export default function AddToCart({ product }) {
-  const { qty, setQty } = useState(1);
+  // Ensure carts is always an array
+  const carts = useSelector((state) => state.cartSlice.carts ?? []);
+
+  // Check if product already exists in cart
+  const isExist = carts.find((cart) => cart.id === product._id);
+
+  // Default quantity
+  const [qty, setQty] = useState(isExist?.qty || 1);
+
   const dispatch = useDispatch();
-  const increment = () => setQty(qty + 1);
-  const decrement = () => setQty(qty - 1);
+  const { user } = useSelector((state) => state.userSlice);
+  const nav = useNavigate();
+
+  const increment = () => {
+    if (qty < product.stock) setQty(qty + 1);
+  };
+
+  const decrement = () => {
+    if (qty > 1) setQty(qty - 1);
+  };
+
   const handleCart = () => {
     dispatch(
       setCart({
+        id: product._id,
         title: product.title,
         price: product.price,
         stock: product.stock,
+        brand: product.brand,
+        category: product.category,
         image: product.image,
         qty,
       })
     );
+
+    nav("/checkout");
   };
+
   return (
     <div className="space-y-5">
-      <div className="flex gap-5">
-        <Button onClick={decrement}>
+      <div className="flex gap-4 items-center">
+        <Button disabled={qty === 1} onClick={decrement}>
           <MinusIcon />
         </Button>
 
-        <h1>{qty}</h1>
+        <h3 className="text-xl">{qty}</h3>
 
         <Button disabled={qty === product.stock} onClick={increment}>
           <PlusIcon />
         </Button>
       </div>
-      <Button onClick={handleCart} size="lg" className="bg-green-500">
+
+      <Button
+        disabled={user?.role === "admin" || !user}
+        onClick={handleCart}
+        size="lg"
+        className="bg-green-600"
+      >
         Add To Cart
       </Button>
     </div>

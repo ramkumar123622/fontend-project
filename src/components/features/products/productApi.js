@@ -14,9 +14,10 @@ const productApi = mainApi.injectEndpoints({
 
     // ============= GET All Products =====================
     getProducts: builder.query({
-      query: () => ({
+      query: (query) => ({
         url: "/products",
         method: "GET",
+        params: query,
       }),
       providesTags: ["Products"],
     }),
@@ -26,13 +27,15 @@ const productApi = mainApi.injectEndpoints({
       query: (data) => ({
         url: "/products",
         method: "POST",
-        headers: {
+        headers: { 
           Authorization: data.token,
         },
         body: data.body,
       }),
       invalidatesTags: ["Products"],
     }),
+
+   
 
     // ============= UPDATE Product =======================
     updateProduct: builder.mutation({
