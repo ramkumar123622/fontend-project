@@ -1,9 +1,11 @@
+
+
 import mongoose from "mongoose";
 
 export const categories = ['food', 'clothes', 'tech', 'jewellery'];
-export const brands =  ['addidas', 'samsung', 'tanishq', 'iphone' ];
+export const brands = ['addidas', 'samsung', 'tanishq', 'iphone'];
 
-const productSchema =  new mongoose.Schema({
+const productSchema = new mongoose.Schema({
     title: {
         type: String,
         unique: true,
@@ -17,35 +19,31 @@ const productSchema =  new mongoose.Schema({
         type: String,
         required: true
     },
-     category: {
+    category: {
         type: String,
-        enum:categories ,
+        enum: categories,
         required: true
     },
-     brand: {
+    brand: {
         type: String,
         enum: brands,
         required: true
     },
-     rating: {
+    rating: {
         type: Number,
         default: 0
     },
-    
-        rating: {
-         type: Number,
-         default: 0
-        },
-    
-    stock:{
-      type:Number,
-      required:true
+    stock: {
+        type: Number,
+        required: true
     },
     price: {
         type: Number,
         required: true
     }
-},  {timestamps: true});
+}, { timestamps: true });
 
-const product = mongoose.model('product', productSchema);
-export default product;
+
+
+const Product = mongoose.model('Product', productSchema);
+export default Product;

@@ -8,9 +8,10 @@ import { notAllowed } from '../utils/notAllowed.js';
 
 
 
+
 const router = express.Router();
 
-router.route('/api/orders').get( checkUser, getOrders).post(checkUser, createOrder).all(notAllowed);
+router.route('/api/orders').get(checkUser, getOrders).post(checkUser, createOrder).all(notAllowed);
 router.route('/api/orders/:id').get(getOrder).all(notAllowed);
 
 

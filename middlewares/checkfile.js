@@ -1,7 +1,7 @@
 import path from 'path';
 import {v4 as uuidv4} from 'uuid';
 
-const supportedExts = ['jpg', 'png', 'jpeg', 'gif'];
+const supportedExts = ['.jpg', '.png', '.jpeg', '.gif'];
 
 
 export const checkfile =  (req, res, next) =>{
@@ -11,7 +11,7 @@ export const checkfile =  (req, res, next) =>{
     //checking file
    if(!file) return res.status(400).json({
     status: 'Error',
-    data: 'please provide image file'
+    message: 'please provide image file'
    });
 
   
@@ -19,7 +19,7 @@ export const checkfile =  (req, res, next) =>{
     // checking valid image file
    if(!supportedExts.includes(fileExts)) return res.status(400).json({
     status: 'Error',
-    data: 'please provide valid image file'
+    message: 'please provide valid image file'
    });
 
 

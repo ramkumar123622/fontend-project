@@ -1,6 +1,7 @@
  //users get, post, delete, idfetch, update
- import product, { brands, categories } from "../model/product.js";
+
 import fs from 'fs';
+import product, { brands, categories } from '../model/product.js';
 
 
 
@@ -27,10 +28,6 @@ queryObj.brand = {$regex: searchText, $options:'i'}
   }
 }
 
-
-
-
-
 const output = Object.entries(queryObj).reduce((acc, [key, value]) => {
   const match = key.match(/(.+)\[(.+)\]/); // capture full field + operator
 
@@ -48,7 +45,6 @@ const output = Object.entries(queryObj).reduce((acc, [key, value]) => {
 
   return acc;
 }, {});
-console.log(output);
     let query = product.find(output);
 
   if(req.query.sort){
@@ -83,6 +79,10 @@ console.log(output);
  }
 }
 
+
+
+
+
 export const getProduct = async (req,res) => {
  try {
   const isExist = await product.findById(req.id);
@@ -108,38 +108,33 @@ export const getProduct = async (req,res) => {
 
 } 
 
-export const createProducts = async (req,res) => {
-  const {title, price, detail, category, brand, image, stock}= req.body ?? {};
-
-  
-  try {
-    await product.create ({
-      title,
-       detail,
-       price,
-       brand,
-       stock,
-      category,
-      image: req.imagePath 
-      
-    });
-    return res.status(201).json({
-      status: 'Success', 
-      data: 'product added Successfully ' 
-    })
-  } catch (err) {
-
-    fs.unlink(`./uploads/${req.imagePath}`, (err) => {
-      return res.status(400).json({ 
-      status: 'Error',
-      message: err.message
-    })
-    })
-    
-    
-  }
+export const createProducts = async (req,res)=>{
+    const {title,price,detail, brand, category, stock} = 
+    req.body ?? {};
+    console.log(req.imagePath);
+    try{
+        await product.create({
+            title,
+            price,
+            detail,
+            image:req.imagePath,
+            brand,
+            category,
+            stock
+        });
+        return res.status(201).json({
+            status: 'Success',
+            data: 'product added successfully'
+        });
+    } catch(err){
+        fs.unlink(`./uploads/${req.imagePath}`,(error)=>{
+             return res.status(400).json({
+            status : 'Error',
+            data: err.message
+          })
+        })
+    }
 }
-
 
 
 
@@ -171,6 +166,7 @@ export const createProducts = async (req,res) => {
     isExist.stock = stock || isExist.stock;
     isExist.category = category || isExist.category;
     isExist.brand = brand || isExist.brand;
+    
 
     await isExist.save();
 
@@ -209,6 +205,7 @@ export const createProducts = async (req,res) => {
   }
 
 };
+
 
 
 export const deleteProducts = async (req,res)=>{

@@ -15,7 +15,7 @@ const port = 5000;
 dotenv.config();
 
 // MONGODB CONNECTION
-mongoose.connect( process.env.DB_URL)
+mongoose.connect(process.env.DB_URL)
   .then(() => {
     console.log('MongoDB Connected');
 
