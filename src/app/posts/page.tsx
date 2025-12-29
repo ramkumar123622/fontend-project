@@ -9,7 +9,6 @@ export default function PostsPage() {
       {posts.map((post) => {
         return <h1 key={post.id}>{post.title}</h1>;
       })}
-      <h1>PostsPage</h1>
     </div>
   );
 }
