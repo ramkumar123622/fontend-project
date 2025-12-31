@@ -19,11 +19,13 @@ export default function Header() {
         <Link href={"/posts"}>posts</Link>
         <Link href={"/about"}>about</Link>
         <Link href={"/contact"}>contact</Link> */}
+
         <SignedOut>
           <SignInButton>Sign In</SignInButton>
           <SignUpButton>Sign Up </SignUpButton>
         </SignedOut>
         <SignedIn>
+          <Link href={"/news/add"}>Add News</Link>
           <UserButton />
         </SignedIn>
       </nav>
